@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -22,6 +23,8 @@ public class RectOverlay extends View {
     private Paint clickPaint;
     private Paint textPaint;
     private Paint clickTextPaint;
+
+    private Boolean isTouch = false;
 
     private List<DetectedObject> results = new ArrayList<>();
 
@@ -58,7 +61,7 @@ public class RectOverlay extends View {
             Paint targetPaint = paint;
             Paint targetTextPaint = textPaint;
             Rect boundBox = object.getBoundingBox();
-            if(boundBox.contains((int)clickPoint[0], (int)clickPoint[1])) {
+            if (boundBox.contains((int) clickPoint[0], (int) clickPoint[1])) {
                 targetPaint = clickPaint;
                 targetTextPaint = clickTextPaint;
             }
@@ -68,18 +71,32 @@ public class RectOverlay extends View {
             float screenWidth = getWidth();
             float fontSize = (boxWidth / screenWidth) * 300;
             targetTextPaint.setTextSize(fontSize);
-            canvas.drawText(object.getLabels().get(0).getText() + ", " + String.format(getResources().getConfiguration().locale,"%.2f", object.getLabels().get(0).getConfidence() * 100) + "%", object.getBoundingBox().left, object.getBoundingBox().top - (fontSize / 2), targetTextPaint);
+            canvas.drawText(object.getLabels().get(0).getText() + ", " + String.format(getResources().getConfiguration().locale, "%.2f", object.getLabels().get(0).getConfidence() * 100) + "%", object.getBoundingBox().left, object.getBoundingBox().top - (fontSize / 2), targetTextPaint);
+        }
+        if(!isTouch) {
+            clickPoint[0] = -Float.MAX_VALUE;
+            clickPoint[1] = -Float.MAX_VALUE;
         }
         results.clear();
     }
 
     @Override
-    public boolean onTouchEvent (MotionEvent event) {
+    public boolean onTouchEvent(MotionEvent event) {
         super.onTouchEvent(event);
         Log.d("motionEvent", event.toString());
         Log.d("motionEvent", event.getX() + ", " + event.getY());
-        clickPoint[0] = event.getX();
-        clickPoint[1] = event.getY();
+        if(event.getAction() == MotionEvent.ACTION_DOWN){
+            isTouch = true;
+            clickPoint[0] = event.getX();
+            clickPoint[1] = event.getY();
+        }
+        else if (event.getAction() == MotionEvent.ACTION_UP){
+            isTouch = false;
+        }
+        else {
+            clickPoint[0] = event.getX();
+            clickPoint[1] = event.getY();
+        }
         return true;
     }
 
@@ -93,7 +110,7 @@ public class RectOverlay extends View {
                 found = true;
                 float confidenceToBeat = checkObject.getLabels().get(0).getConfidence();
                 float confidenceChallenge = object.getLabels().get(0).getConfidence();
-                if(confidenceChallenge > confidenceToBeat) {
+                if (confidenceChallenge > confidenceToBeat) {
                     replace = true;
                     toRemove = checkObject;
                 }
@@ -103,14 +120,13 @@ public class RectOverlay extends View {
             results.remove(toRemove);
             results.add(object);
             invalidate();
-        }
-        else if (!found) {
+        } else if (!found) {
             results.add(object);
             invalidate();
         }
     }
 
-    public void updateOverlay(){
+    public void updateOverlay() {
         results.clear();
         invalidate();
     }
