@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Point;
@@ -26,7 +27,6 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Display;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +38,14 @@ import com.google.mlkit.vision.objects.ObjectDetection;
 import com.google.mlkit.vision.objects.ObjectDetector;
 import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions;
 
+import org.json.simple.JSONArray;
+import org.json.JSONException;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -48,8 +56,9 @@ public class MainActivity extends AppCompatActivity {
     static RectOverlay rectOverlay;
     private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA"};
 
-    private final String modelName = "modelHighRes100";
-    private final float threshold = 0.2f;
+    private final int modelID = 0;
+
+    private String modelName = "";
 
     private static ObjectDetector objectDetector;
     private static Executor analysisExecutor;
@@ -60,15 +69,19 @@ public class MainActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
 
+        Bundle b = getIntent().getExtras();
+        modelName = b.getString("model");
+        float threshold = Float.parseFloat(b.getString("threshold"));
+
         TextView debugText = findViewById(R.id.debugLabel);
-        String fullDebug = modelName + ".tflite \n Threshold: " + String.format(getResources().getConfiguration().locale,"%.2f", threshold * 100) + "%";
+        String fullDebug = modelName + "\n Threshold: " + String.format(getResources().getConfiguration().locale, "%.2f", threshold * 100) + "%";
         debugText.setText(fullDebug);
 
         previewView = findViewById(R.id.viewFinder);
         rectOverlay = findViewById(R.id.rectOverlay);
         if (allPermissionsGranted()) {
             LocalModel localModel = new LocalModel.Builder()
-                    .setAssetFilePath(modelName + ".tflite")
+                    .setAssetFilePath(modelName + "/model.tflite")
                     .build();
 
             CustomObjectDetectorOptions customObjectDetectorOptions =
@@ -154,8 +167,8 @@ public class MainActivity extends AppCompatActivity {
         }, ContextCompat.getMainExecutor(this));
     }
 
-    static class MachineAnalyzer implements ImageAnalysis.Analyzer {
-        private static final String TAG = MachineAnalyzer.class.getName();
+    class MachineAnalyzer implements ImageAnalysis.Analyzer {
+        private final String TAG = MachineAnalyzer.class.getName();
 
         public void analyze(ImageProxy imageProxy) {
 
@@ -170,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.i(TAG, "FAILURE");
                         })
                         .addOnSuccessListener(results -> {
-                            if(results.size() != 0) {
+                            if (results.size() != 0) {
                                 Log.i(TAG, "SUCCESS");
                                 rectOverlay.setAlpha(1f);
                                 Canvas canvas = new Canvas();
@@ -187,17 +200,31 @@ public class MainActivity extends AppCompatActivity {
                                         Log.i(TAG, boundingBox.flattenToString());
                                     }
 
-                                    if (detectedObject.getLabels().size() > 0){
+                                    if (detectedObject.getLabels().size() > 0) {
                                         count++;
                                         rectOverlay.drawOverlay(detectedObject, canvas);
                                     }
                                 }
-                                if(count == 0){
+                                if (count == 0) {
                                     rectOverlay.updateOverlay();
                                 }
                             } else {
                                 rectOverlay.updateOverlay();
                             }
+
+                            if(rectOverlay.getRedirect()) {
+                                String targetObj = rectOverlay.getTargetObj();
+
+                                // Add screen move here
+                                Intent intent = new Intent(MainActivity.this, DisplayInformation.class);
+                                intent.putExtra("type", targetObj);
+                                intent.putExtra("model", modelName);
+                                startActivity(intent);
+
+                                rectOverlay.setRedirect(false);
+                                rectOverlay.setTargetObj("");
+                            }
+
                         })
                         .addOnCompleteListener(complete -> {
                             mediaImage.close();

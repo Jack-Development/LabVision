@@ -24,6 +24,9 @@ public class RectOverlay extends View {
     private Paint textPaint;
     private Paint clickTextPaint;
 
+    private Boolean toInformation = false;
+    private String targetObj = "";
+
     private Boolean isTouch = false;
 
     private List<DetectedObject> results = new ArrayList<>();
@@ -64,6 +67,11 @@ public class RectOverlay extends View {
             if (boundBox.contains((int) clickPoint[0], (int) clickPoint[1])) {
                 targetPaint = clickPaint;
                 targetTextPaint = clickTextPaint;
+
+                if(targetObj.equals("") && !toInformation) {
+                    targetObj = object.getLabels().get(0).getText();
+                    toInformation = true;
+                }
             }
             canvas.drawRect(boundBox.left, boundBox.top, boundBox.right, boundBox.bottom, targetPaint);
 
@@ -114,6 +122,7 @@ public class RectOverlay extends View {
                     replace = true;
                     toRemove = checkObject;
                 }
+                break;
             }
         }
         if (replace) {
@@ -129,5 +138,22 @@ public class RectOverlay extends View {
     public void updateOverlay() {
         results.clear();
         invalidate();
+    }
+
+    public String getTargetObj(){
+        return targetObj;
+    }
+    public void setTargetObj(String s){
+        targetObj = s;
+    }
+
+    public Boolean getRedirect() {
+        return toInformation;
+    }
+    public void setRedirect(Boolean newVal){
+        if(!newVal) {
+            isTouch = false;
+        }
+        toInformation = newVal;
     }
 }

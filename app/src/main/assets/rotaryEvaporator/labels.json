@@ -1,0 +1,27 @@
+[
+  {
+    "shortName": "spin",
+    "name": "Spin",
+    "description": "This is the spinning component, it spins very well."
+  },
+  {
+    "shortName": "control",
+    "name": "Controller",
+    "description": "This does the controlling, it controls the stuff."
+  },
+  {
+    "shortName": "valve",
+    "name": "Valve",
+    "description": "This is a valve, it does valving."
+  },
+  {
+    "shortName": "screen",
+    "name": "Screen",
+    "description": "This is a screen. It shows information."
+  },
+  {
+    "shortName": "power",
+    "name": "Power",
+    "description": "This is the power button. Have you tried turning it off and on again?"
+  }
+]
