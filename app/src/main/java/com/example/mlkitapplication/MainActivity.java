@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         previewView = findViewById(R.id.viewFinder);
         rectOverlay = findViewById(R.id.rectOverlay);
         if (allPermissionsGranted()) {
+            rectOverlay.setModel(modelName);
             LocalModel localModel = new LocalModel.Builder()
                     .setAssetFilePath(modelName + "/model.tflite")
                     .build();

@@ -15,8 +15,16 @@ import androidx.annotation.Nullable;
 
 import com.google.mlkit.vision.objects.DetectedObject;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class RectOverlay extends View {
     private Paint paint;
@@ -32,28 +40,33 @@ public class RectOverlay extends View {
     private List<DetectedObject> results = new ArrayList<>();
 
     private float[] clickPoint = new float[2];
+    ArrayList<ArrayList<String> > paintInfo = new ArrayList<>();
 
     public RectOverlay(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        paint = new Paint();
-        paint.setColor(Color.RED);
-        paint.setStrokeWidth(10);
-        paint.setStyle(Paint.Style.STROKE);
 
-        clickPaint = new Paint();
-        clickPaint.setColor(Color.GREEN);
-        clickPaint.setStrokeWidth(10);
-        clickPaint.setStyle(Paint.Style.STROKE);
 
-        textPaint = new Paint();
-        textPaint.setColor(Color.RED);
-        textPaint.setTextSize(32);
-        textPaint.setStyle(Paint.Style.FILL);
 
-        clickTextPaint = new Paint();
-        clickTextPaint.setColor(Color.GREEN);
-        clickTextPaint.setTextSize(32);
-        clickTextPaint.setStyle(Paint.Style.FILL);
+        paint = makePaint("#FF0000", "OUTLINE");
+        clickPaint = makePaint("#00FF00", "OUTLINE");
+        textPaint = makePaint("#FF0000", "TEXT");
+        clickTextPaint = makePaint("#00FF00", "TEXT");
+    }
+
+    protected Paint makePaint(String hexCode, String type){
+        Paint newPaint = new Paint();
+        newPaint.setColor(Color.parseColor(hexCode));
+
+        if(type.toUpperCase().equals("OUTLINE")){
+            newPaint.setStrokeWidth(10);
+            newPaint.setStyle(Paint.Style.STROKE);
+        }
+        else if(type.toUpperCase().equals("TEXT")){
+            newPaint.setTextSize(32);
+            newPaint.setStyle(Paint.Style.FILL);
+        }
+
+        return newPaint;
     }
 
     @Override
@@ -61,8 +74,19 @@ public class RectOverlay extends View {
         super.onDraw(canvas);
         for (DetectedObject object : results) {
 
-            Paint targetPaint = paint;
-            Paint targetTextPaint = textPaint;
+            String hexCode = "#FF0000";
+            String targetName = object.getLabels().get(0).getText();
+
+            for(int i = 0; i < paintInfo.size(); i++){
+                if(paintInfo.get(i).get(0).equals(targetName)){
+                    hexCode = paintInfo.get(i).get(1);
+                    break;
+                }
+            }
+
+            Paint targetPaint = makePaint(hexCode, "OUTLINE");
+            Paint targetTextPaint = makePaint(hexCode, "TEXT");
+
             Rect boundBox = object.getBoundingBox();
             if (boundBox.contains((int) clickPoint[0], (int) clickPoint[1])) {
                 targetPaint = clickPaint;
@@ -155,5 +179,32 @@ public class RectOverlay extends View {
             isTouch = false;
         }
         toInformation = newVal;
+    }
+
+    public void setModel(String modelName){
+        String inputJSON = "";
+        try {
+            InputStream inputStream = this.getContext().getAssets().open(modelName + "/labels.json");
+            int size = inputStream.available();
+            byte[] buffer = new byte[size];
+            inputStream.read(buffer);
+            inputStream.close();
+            inputJSON = new String(buffer, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Object file = JSONValue.parse(inputJSON);
+
+        JSONArray labels = (JSONArray) file;
+        for(int i = 0; i < labels.size(); i++){
+            JSONObject label = (JSONObject) labels.get(i);
+            String shortName = (String) label.get("shortName");
+            String hexCode = (String) label.get("colour");
+
+            paintInfo.add(new ArrayList<>());
+            paintInfo.get(i).add(0, shortName);
+            paintInfo.get(i).add(1, hexCode);
+        }
     }
 }

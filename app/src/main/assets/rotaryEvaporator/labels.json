@@ -2,26 +2,31 @@
   {
     "shortName": "spin",
     "name": "Spin",
-    "description": "This is the spinning component, it spins very well."
+    "description": "This is the spinning component, it spins very well.",
+    "colour":  "#FFFFFF"
   },
   {
     "shortName": "control",
     "name": "Controller",
-    "description": "This does the controlling, it controls the stuff."
+    "description": "This does the controlling, it controls the stuff.",
+    "colour":  "#AAAAAA"
   },
   {
     "shortName": "valve",
     "name": "Valve",
-    "description": "This is a valve, it does valving."
+    "description": "This is a valve, it does valving.",
+    "colour":  "#777777"
   },
   {
     "shortName": "screen",
     "name": "Screen",
-    "description": "This is a screen. It shows information."
+    "description": "This is a screen. It shows information.",
+    "colour":  "#333333"
   },
   {
     "shortName": "power",
     "name": "Power",
-    "description": "This is the power button. Have you tried turning it off and on again?"
+    "description": "This is the power button. Have you tried turning it off and on again?",
+    "colour":  "#000000"
   }
 ]
