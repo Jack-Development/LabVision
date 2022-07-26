@@ -1,0 +1,12 @@
+[
+  {
+    "modelName": "rotaryEvaporator",
+    "threshold": "0.2"
+  },
+  {
+    "modelName": "rotaryEvaporator",
+    "threshold": "0.65"
+  }
+]
+
+
