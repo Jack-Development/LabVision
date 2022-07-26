@@ -1,5 +1,6 @@
 // Project: Code from Github page https://github.com/Chathunka/Android-CameraX
 // Code Author: https://github.com/Chathunka
+// Code edited by: https://github.com/Jack-Development
 package com.example.mlkitapplication;
 
 import androidx.annotation.NonNull;
@@ -38,19 +39,12 @@ import com.google.mlkit.vision.objects.ObjectDetection;
 import com.google.mlkit.vision.objects.ObjectDetector;
 import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions;
 
-import org.json.simple.JSONArray;
-import org.json.JSONException;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
+    private Boolean debugMode;
     private static final String TAG = MainActivity.class.getName();
     PreviewView previewView;
     static RectOverlay rectOverlay;
@@ -72,15 +66,19 @@ public class MainActivity extends AppCompatActivity {
         Bundle b = getIntent().getExtras();
         modelName = b.getString("model");
         float threshold = Float.parseFloat(b.getString("threshold"));
+        debugMode = b.getBoolean("debugMode");
 
-        TextView debugText = findViewById(R.id.debugLabel);
-        String fullDebug = modelName + "\n Threshold: " + String.format(getResources().getConfiguration().locale, "%.2f", threshold * 100) + "%";
-        debugText.setText(fullDebug);
+        if (debugMode) {
+            TextView debugText = findViewById(R.id.debugLabel);
+            String fullDebug = modelName + "\n Threshold: " + String.format(getResources().getConfiguration().locale, "%.2f", threshold * 100) + "%";
+            debugText.setText(fullDebug);
+        }
 
         previewView = findViewById(R.id.viewFinder);
         rectOverlay = findViewById(R.id.rectOverlay);
         if (allPermissionsGranted()) {
             rectOverlay.setModel(modelName);
+            rectOverlay.setDebugMode(debugMode);
             LocalModel localModel = new LocalModel.Builder()
                     .setAssetFilePath(modelName + "/model.tflite")
                     .build();

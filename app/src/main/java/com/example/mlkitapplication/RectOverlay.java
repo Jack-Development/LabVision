@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -24,13 +23,12 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class RectOverlay extends View {
-    private Paint paint;
-    private Paint clickPaint;
-    private Paint textPaint;
-    private Paint clickTextPaint;
+    private Boolean debugMode;
+
+    private final Paint clickPaint;
+    private final Paint clickTextPaint;
 
     private Boolean toInformation = false;
     private String targetObj = "";
@@ -44,12 +42,7 @@ public class RectOverlay extends View {
 
     public RectOverlay(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-
-
-
-        paint = makePaint("#FF0000", "OUTLINE");
         clickPaint = makePaint("#00FF00", "OUTLINE");
-        textPaint = makePaint("#FF0000", "TEXT");
         clickTextPaint = makePaint("#00FF00", "TEXT");
     }
 
@@ -103,7 +96,10 @@ public class RectOverlay extends View {
             float screenWidth = getWidth();
             float fontSize = (boxWidth / screenWidth) * 300;
             targetTextPaint.setTextSize(fontSize);
-            canvas.drawText(object.getLabels().get(0).getText() + ", " + String.format(getResources().getConfiguration().locale, "%.2f", object.getLabels().get(0).getConfidence() * 100) + "%", object.getBoundingBox().left, object.getBoundingBox().top - (fontSize / 2), targetTextPaint);
+            if(debugMode)
+                canvas.drawText(object.getLabels().get(0).getText() + ", " + String.format(getResources().getConfiguration().locale, "%.2f", object.getLabels().get(0).getConfidence() * 100) + "%", object.getBoundingBox().left, object.getBoundingBox().top - (fontSize / 2), targetTextPaint);
+            else
+                canvas.drawText(object.getLabels().get(0).getText(), object.getBoundingBox().left, object.getBoundingBox().top - (fontSize / 2), targetTextPaint);
         }
         if(!isTouch) {
             clickPoint[0] = -Float.MAX_VALUE;
@@ -179,6 +175,10 @@ public class RectOverlay extends View {
             isTouch = false;
         }
         toInformation = newVal;
+    }
+
+    public void setDebugMode(Boolean b){
+        debugMode = b;
     }
 
     public void setModel(String modelName){
