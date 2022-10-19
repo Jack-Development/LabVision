@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 
 public class ModelSelect extends AppCompatActivity {
 
-    private final Boolean debugMode = true;
+    private final Boolean debugMode = false;
 
     @SuppressLint("SetTextI18n")
     @Override
