@@ -17,4 +17,4 @@ The models created to be used within the application are trained using the [Tens
 
 ## Development Info
 
-An updated breakdown of development and mainting of the application can be found [here](https://www.overleaf.com/read/vtjmbnrgdjpf).
+An updated breakdown of development and mainting of the application can be found [here](https://github.com/Jack-Development/CTLMachineLearning/blob/main/CTL_AR_Training_Documentation_2_0.pdf).
