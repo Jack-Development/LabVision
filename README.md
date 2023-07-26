@@ -1,4 +1,10 @@
-# CTL Machine Learning Application 🤖
+&nbsp;
+<div id="header" align="center">
+  <img src="https://github.com/Jack-Development/LabVision/blob/main/Resources/logo.png" width="300"/>
+</div>
+&nbsp;
+
+# LabVision
 
 Welcome to the CTL Machine Learning Application project! This is an Android application that leverages [Google MLKit](https://developers.google.com/ml-kit/) to identify components of machinery used within the Collaborative Teaching Laboratory at the [University of Birmingham](https://www.birmingham.ac.uk/index.aspx).
 
