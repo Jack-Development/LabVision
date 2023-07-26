@@ -22,7 +22,7 @@ This Android application was designed to aid in the identification of machinery 
 
 ## Documentation 📚
 
-A detailed breakdown of the development and maintenance of the application can be found in our [documentation](https://github.com/Jack-Development/CTLMachineLearning/blob/main/CTL_AR_Training_Documentation_2_0.pdf).
+A detailed breakdown of the development and maintenance of the application can be found in our [documentation](https://github.com/Jack-Development/LabVison/blob/main/CTL_AR_Training_Documentation_2_0.pdf).
 
 ## Development 💻
 
